@@ -1,9 +1,9 @@
-const socket = io("http://localhost:8000");
+const socket = io();
 
 const form = document.getElementById("send-container");
 const messageInput = document.getElementById("messageInp");
 const messageContainer = document.querySelector(".container");
-var audio = new Audio("ting.mp3");
+const audio = new Audio("/ting.mp3");
 
 // Track user interaction to allow sound playback
 let userInteracted = false;
@@ -23,7 +23,7 @@ const append = (message, position) => {
             console.error("Failed to play audio:", error);
         });
     }
-}
+};
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -33,8 +33,13 @@ form.addEventListener("submit", (e) => {
     messageInput.value = "";
 });
 
-const name = prompt("Enter your name to join");
-socket.emit("new-user-joined", name);
+window.addEventListener('DOMContentLoaded', (event) => {
+    let name = "";
+    while (!name) {
+        name = prompt("Enter your name to join");
+    }
+    socket.emit("new-user-joined", name);
+});
 
 socket.on("user-joined", name => {
     append(`${name} joined the chat`, "right");
@@ -47,4 +52,5 @@ socket.on("receive", data => {
 socket.on("left", name => {
     append(`${name} left the chat`, "left");
 });
+
 

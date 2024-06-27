@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 const app = express();
@@ -13,13 +14,18 @@ const io = socketIo(server, {
     }
 });
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 const users = {};
 
 io.on('connection', socket => {
     socket.on('new-user-joined', name => {
-        console.log('New user joined:', name);
-        users[socket.id] = name;
-        socket.broadcast.emit('user-joined', name);
+        if (name) {
+            console.log('New user joined:', name);
+            users[socket.id] = name;
+            socket.broadcast.emit('user-joined', name);
+        }
     });
 
     socket.on('send', message => {
